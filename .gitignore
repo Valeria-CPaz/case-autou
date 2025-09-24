@@ -1,0 +1,14 @@
+# Ignore o ambiente virtual
+venv/
+# Ignore arquivos do VSCode (se usar)
+.vscode/
+# Bytecode do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+# Configs do sistema operacional
+*.swp
