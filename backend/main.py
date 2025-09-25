@@ -1,6 +1,15 @@
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import PyPDF2
+from io import BytesIO
+
+from backend.email_utils import (
+    extract_text_from_file,
+    preprocess_text,
+    classify_and_reply,
+)
+
 
 app = FastAPI()
 
@@ -13,34 +22,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def read_root():
     return {"message": "API do case AutoU funcionando! 🚀"}
 
+
 @app.post("/process_email")
 async def process_email(
-    email_file: UploadFile = File(None),
-    email_text: str = Form(None)
+    email_file: UploadFile = File(None), email_text: str = Form(None)
 ):
-    #Validação básica
+    # Endpoint que processa o texto (txt, pdf ou texto colado) e retorna o bruto pra etapa de classificação e NLP
     if not email_file and not email_text:
         return {"error": "Envie um arquivo ou texto!"}
-    
-    # Lê o conteúdo do arquivo se foi enviado
+
     text_content = ""
     if email_file:
         filename = email_file.filename.lower()
         contents = await email_file.read()
-        if filename.endswith(".txt"):
-            text_content = contents.decode("utf-8", errors = "ignore")
-        elif filename.endswith(".pdf"):
-            text_content = "=== TODO ==="
-        else:
+        text_content = extract_text_from_file(filename, contents)
+        if text_content is None:
             return {"error": "Formato de arquivo não suportado."}
-    elif email_text:
-        text_content = email_text    
+
+    # Pré-processamento NLP
+    preprocessed_text = preprocess_text(text_content)
+    # Classificação e sugestão de resposta
+    ia_result = classify_and_reply(text_content)
 
     return {
         "status": "ok",
-        "original_text": text_content[:1000] # Limitação para não explodir resposta
+        "original_text": text_content[:1000],
+        "preprocessed_text": preprocessed_text[:1000],
+        "categoria": ia_result["categoria"],
+        "resposta_sugerida": ia_result["resposta"],
     }
