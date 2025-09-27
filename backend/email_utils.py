@@ -52,6 +52,46 @@ def preprocess_text(text: str) -> str:
     return " ".join(tokens)
 
 
+# Classificação com Gemini (2.5-flash)
+load_dotenv()
+gemini_key = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=gemini_key)
+
+
+def classify_and_reply_gemini(text: str) -> dict:
+    """
+    Integração com a Google Gemini
+    Classifica o email como produtivo ou improdutivo
+    Args: text - texto pré-processado
+    Returns: dict -
+    """
+
+    prompt = (
+        "Você é um assistente para uma equipe que recebe muitos e-mails.\n"
+        "Classifique o e-mail abaixo como 'Produtivo' ou 'Improdutivo' e sugira uma resposta automática adequada para a categoria.\n"
+        "Retorne exatamente neste formato (em português):\n"
+        "Categoria: <Produtivo/Improdutivo>\n"
+        "Resposta: <resposta automática>\n\n"
+        f"E-mail:\n{text}"
+    )
+
+    try:
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        response = model.generate_content(prompt)
+        output = response.text
+        categoria = "Desconhecido"
+        resposta = ""
+        for line in output.split("\n"):
+            if line.lower().startswith("categoria:"):
+                categoria = line.split(":", 1)[-1].strip()
+            if line.lower().startswith("resposta:"):
+                resposta = line.split(":", 1)[-1].strip()
+        return {"categoria": categoria, "resposta": resposta}
+    except Exception as e:
+        return {"categoria": "Erro", "resposta": f"Erro ao usar Gemini: {e}"}
+
+
+# Classificador Fallback
 def classify_and_reply(text: str) -> dict:
     """
     Classificação local baseada em palavras-chave
@@ -94,3 +134,5 @@ def classify_and_reply(text: str) -> dict:
         resposta = "Mensagem registrada. Caso necessário, entraremos em contato."
 
     return {"categoria": categoria, "resposta": resposta}
+
+

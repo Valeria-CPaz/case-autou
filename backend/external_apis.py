@@ -1,5 +1,5 @@
 """
-INTEGRAÇÕES COM IA EXTERNA - OpenAI, Gemini e Hugging Face
+INTEGRAÇÕES COM IA EXTERNA - OpenAI e Hugging Face
 Deixei este arquivo organizado, cada bloco pronto pra ser usado.
 Só descomentar o bloco desejado, inserir a chave e importar no seu projeto.
 
@@ -52,51 +52,8 @@ Testados e verificados em julho/2025. Todos os erros reportados abaixo são reai
 
 
 
-# === 2. GEMINI (GOOGLE) (https://ai.google.dev/gemini-api/docs/get-started) ===
-# """
-# Como usar:
-# - Gere sua chave em https://aistudio.google.com/app/apikey
-# - Adicione ao .env: GEMINI_API_KEY=AIza...
-# - Instale: pip install google-generativeai
-# - No seu email_utils.py, basta importar essa função e usar.
-#
-# Erros encontrados: Limite de quota/free tier esgotado em todas as contas testadas.
-# """
 
-# import google.generativeai as genai
-# import os
-# from dotenv import load_dotenv
-# load_dotenv()
-# gemini_key = os.getenv("GEMINI_API_KEY")
-# genai.configure(api_key=gemini_key)
-#
-# def classify_and_reply_gemini(text: str) -> dict:
-#     prompt = (
-#         "Você é um assistente para uma equipe que recebe muitos e-mails.\n"
-#         "Classifique o e-mail abaixo como 'Produtivo' ou 'Improdutivo' e sugira uma resposta automática adequada para a categoria.\n"
-#         "Retorne exatamente neste formato (em português):\n"
-#         "Categoria: <Produtivo/Improdutivo>\n"
-#         "Resposta: <resposta automática>\n\n"
-#         f"E-mail:\n{text}"
-#     )
-#     try:
-#         model = genai.GenerativeModel("models/gemini-1.5-pro-latest")
-#         response = model.generate_content(prompt)
-#         output = response.text
-#         categoria = "Desconhecido"
-#         resposta = ""
-#         for line in output.split("\n"):
-#             if line.lower().startswith("categoria:"):
-#                 categoria = line.split(":", 1)[-1].strip()
-#             if line.lower().startswith("resposta:"):
-#                 resposta = line.split(":", 1)[-1].strip()
-#         return {"categoria": categoria, "resposta": resposta}
-#     except Exception as e:
-#         return {"categoria": "Erro", "resposta": f"Erro ao usar Gemini: {e}"}
-
-
-
-# === 3. HUGGING FACE INFERENCE API (https://huggingface.co/docs/api-inference/index) ===
+# === 2. HUGGING FACE INFERENCE API (https://huggingface.co/docs/api-inference/index) ===
 # """
 # Como usar:
 # - Gere um token Hugging Face e coloque em .env: HF_API_TOKEN=hf_xxxxxxxx
