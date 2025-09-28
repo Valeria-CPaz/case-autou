@@ -1,51 +1,61 @@
-🛑 Limitações encontradas e decisões de arquitetura
+# 🤖 AutoU — Email Classifier Case
 
-Durante o desenvolvimento da solução, foi realizado um estudo e teste prático de diversas abordagens para integração de IA, visando classificar e-mails e sugerir respostas automáticas:
+Projeto desenvolvido como parte do processo seletivo prático da **AutoU**, focado em microserviços de automação utilizando Inteligência Artificial.
 
-1. Tentativas com APIs de IA externas
+---
 
-Foram testadas as seguintes alternativas:
+## **Sobre o Projeto**
+Sistema web completo para classificar e-mails como “produtivo” ou “improdutivo” com sugestão automática de resposta, usando IA (Google Gemini API com fallback local para maior robustez).
 
-OpenAI GPT (gpt-3.5-turbo):
+- **Frontend:** React + Vite — Interface simples, responsiva, com suporte a drag & drop de arquivos.
+- **Backend:** FastAPI (Python) — Processamento dos uploads, pré-processamento de texto, classificação e sugestão de resposta.
 
-Problema: Todas as contas gratuitas testadas atingiram o limite de quota, impedindo o uso durante o desenvolvimento e deploy.
+---
 
-Impacto: Qualquer usuário/avaliador que tentar rodar a API sem chave paga receberá erro de quota (“You exceeded your current quota...”).
+## **Deploy Online**
+- **Frontend:** [https://case-autou-gray.vercel.app](https://case-autou-gray.vercel.app)
+- **Backend:** [https://case-autou-bemf.onrender.com](https://case-autou-bemf.onrender.com)
 
-Google Gemini (API generativeai):
+---
 
-Problema: Limite de quota free extremamente baixo, impossibilitando uso estável até mesmo para protótipos ou testes simples.
+## **Como rodar localmente**
 
-Impacto: Falha com erro 429 (“quota exceeded”) mesmo em contas novas.
+### **Pré-requisitos**
+- Python 3.10+
+- Node.js 18+
+- (Recomendado: usar ambiente virtual Python)
 
-Hugging Face Inference API:
+---
 
-Problema: Modelos públicos frequentemente ficam fora do ar, retornam 404 ou erros internos (“index out of range”).
-Modelos PT-BR de classificação, sentiment analysis ou spam detection testados estavam todos indisponíveis no momento do desenvolvimento (julho/2025).
+### **1. Backend**
+```bash
+# Backend
+cd backend
+python -m venv venv
+# Ative o ambiente virtual:
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+pip install -r requirements.txt
+# Copie .env.example para .env e adicione sua chave da API Gemini
+uvicorn app.main:app --reload
+```
 
-Impacto: Não há garantia de funcionamento, mesmo para projetos de MVP/demo.
-Além disso, a quota free é muito baixa e pode ser consumida rapidamente.
+### **1. Frontend**
+```bash
+cd frontend
+npm install
+# Crie um arquivo .env e configure:
+VITE_API_URL=http://localhost:8000
+npm run dev
+```
+---
 
-2. Pipeline local com Transformers
+### Notas rápidas
 
-Vantagem:
-Permite rodar modelos robustos (como BERT ou Bertweet) localmente, sem depender de quota ou de disponibilidade online.
-Não há limite de uso, funciona offline e é ideal para demonstrações locais.
+- Projeto entregue como case prático para a AutoU.
+- A arquitetura está pronta para uso real de IA via Gemini/OpenAI/Hugging Face: basta adicionar sua chave no backend.
+- Em ambiente público gratuito, a classificação por IA pode não funcionar sempre devido a limites de quota das APIs.
+- Para mais detalhes técnicos, consulte o código e os comentários do projeto.
 
-Limitação:
-A maioria das plataformas de nuvem gratuita (Render, Vercel, Heroku Free, etc) não permite baixar modelos grandes (~400MB+) ou executar tarefas pesadas de IA devido à limitação de RAM, CPU e armazenamento.
-Com isso, o deploy público pode não rodar a IA local — apenas ambientes locais de desenvolvimento.
-
-3. Solução adotada para garantir robustez
-
-A arquitetura do sistema foi desenhada para ser plug-and-play:
-
-Toda a integração com IA (OpenAI, Gemini, Hugging Face) está pronta, documentada e testada, bastando descomentar e inserir a chave.
-
-Para garantir estabilidade e evitar bloqueios no deploy público, a versão principal do sistema utiliza classificação local baseada em palavras-chave, sempre funcionando para qualquer usuário, sem dependência de quota ou APIs externas.
-
-Caso seja necessário rodar IA de verdade, basta seguir a documentação do arquivo external_apis.py e executar localmente.
-
-Resumo:
-A decisão foi priorizar robustez e experiência do usuário, evitando travamentos causados por limitação de quota gratuita das APIs públicas.
-A arquitetura segue pronta para integração real de IA assim que o ambiente e recursos estiverem disponíveis!
