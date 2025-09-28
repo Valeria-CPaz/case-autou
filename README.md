@@ -21,9 +21,9 @@ Sistema web completo para classificar e-mails como “produtivo” ou “improdu
 ## **Como rodar localmente**
 
 ### **Pré-requisitos**
-- Python 3.10+
-- Node.js 18+
-- (Recomendado: usar ambiente virtual Python)
+- **Python 3.10+** (para o backend)
+- **Node.js 18+** (para rodar o frontend com Vite)
+- (Recomendado) Ambiente virtual Python: `python -m venv venv`
 
 ---
 
