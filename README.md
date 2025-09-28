@@ -1,6 +1,6 @@
 # 🤖 AutoU — Email Classifier Case
 
-Projeto desenvolvido como parte do processo seletivo prático da **AutoU**, focado em microserviços de automação utilizando Inteligência Artificial.
+Projeto desenvolvido como parte do processo seletivo prático da **AutoU**, focado automação utilizando Inteligência Artificial.
 
 ---
 
