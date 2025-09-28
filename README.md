@@ -13,8 +13,8 @@ Sistema web completo para classificar e-mails como “produtivo” ou “improdu
 ---
 
 ## **Deploy Online**
-- **Frontend:** [https://case-autou-gray.vercel.app](https://case-autou-gray.vercel.app)
-- **Backend:** [https://case-autou-bemf.onrender.com](https://case-autou-bemf.onrender.com)
+- **Frontend (React/Vite):** [https://case-autou-gray.vercel.app](https://case-autou-gray.vercel.app)
+- **Backend (FastAPI):** [https://case-autou-bemf.onrender.com](https://case-autou-bemf.onrender.com)
 
 ---
 
@@ -42,7 +42,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-### **1. Frontend**
+### **2. Frontend**
 ```bash
 cd frontend
 npm install
@@ -52,7 +52,7 @@ npm run dev
 ```
 ---
 
-### Notas rápidas
+### Observações
 
 - Projeto entregue como case prático para a AutoU.
 - A arquitetura está pronta para uso real de IA via Gemini/OpenAI/Hugging Face: basta adicionar sua chave no backend.
