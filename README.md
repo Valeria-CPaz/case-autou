@@ -19,8 +19,8 @@ Sistema web completo para classificar e-mails como “produtivo” ou “improdu
 ---
 
 ## **Screenshots**
-![Tela principal do sistema](images/screenshot_01.png)
-![Tela após classificação](images/screenshot_02.png)
+![Tela principal do sistema](images/screenshot_01.PNG)
+![Tela após classificação](images/screenshot_02.PNG)
 
 ## **Como rodar localmente**
 
