@@ -15,6 +15,7 @@ Sistema web completo para classificar e-mails como “produtivo” ou “improdu
 ## **Deploy Online**
 - **Frontend (React/Vite):** [https://case-autou-gray.vercel.app](https://case-autou-gray.vercel.app)
 - **Backend (FastAPI):** [https://case-autou-bemf.onrender.com](https://case-autou-bemf.onrender.com)
+- obs: pasta "emails_para_teste" com arquivos para facilitar testes rápidos.
 
 ---
 
