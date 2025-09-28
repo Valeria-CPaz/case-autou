@@ -74,6 +74,7 @@ async def process_email(
     ia_result, fonte = classify_with_timeout(text_content, timeout=10)
 
     # Atualiza contadores para exibir analytics em tempo real na interface
+    stats["total"] += 1
     categoria = str(ia_result.get("categoria", "")).lower()
     if categoria == "produtivo":
         stats["produtivos"] += 1
