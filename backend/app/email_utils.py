@@ -9,9 +9,10 @@ from dotenv import load_dotenv
 def extract_text_from_file(filename: str, contents: bytes) -> str:
     """
     Extrai o texto do arquivo (txt ou pdf)
+    Usei essa abordagem para permitir uploads diretos do front
     Args: filename - Nome do arquivo
           contents - conteúdo bruto do arquito (bytes)
-    Returns: str - texto extraído (ou msg de erro)
+    Returns: str - texto extraído (ou msg de erro)    
     """
     filename = filename.lower()
     if filename.endswith(".txt"):
@@ -39,7 +40,8 @@ nlp = spacy.load("pt_core_news_sm")
 
 def preprocess_text(text: str) -> str:
     """
-    Pré-processa o texto removendo stopwords, pontuações e fazendo lematização
+    Pré-processamento usando spaCy: remove stopwords, pontuação e faz lematização
+    Isso aumenta a precisão dos classificadores e reduz ruído
     Args: text - texto de entrada
     Returns: str - texto limpo e pré-processado
     """
@@ -57,15 +59,13 @@ load_dotenv()
 gemini_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=gemini_key)
 
-
 def classify_and_reply_gemini(text: str) -> dict:
     """
-    Integração com a Google Gemini
-    Classifica o email como produtivo ou improdutivo
+    Integração com a Google Gemini para classificação e sugestão de resposta
+    Retorna resultado em formato padronizado esperado pelo front
     Args: text - texto pré-processado
     Returns: dict -
     """
-
     prompt = (
         "Você é um assistente para uma equipe que recebe muitos e-mails.\n"
         "Classifique o e-mail abaixo como 'Produtivo' ou 'Improdutivo' e sugira uma resposta automática adequada para a categoria.\n"
@@ -94,35 +94,25 @@ def classify_and_reply_gemini(text: str) -> dict:
 # Classificador Fallback
 def classify_and_reply(text: str) -> dict:
     """
-    Classificação local baseada em palavras-chave
-    Para integrações com IA externas (OpenAI, Gemini, Hugging Face), veja o arquivo external_apis.py.
+    Classificação local baseada em palavras-chaves 
+    Serve como fallback caso a IA externa esteja fora ou exceda timeout
     """
     texto = text.lower()
+    
     produtivas = [
-        "problema",
-        "suporte",
-        "atualização",
-        "erro",
-        "senha",
-        "dúvida",
-        "requisição",
-        "pedido",
-        "cadastro",
-        "sistema",
-        "login",
-    ]
-    improdutivas = [
-        "feliz",
-        "parabéns",
-        "obrigado",
-        "agradeço",
-        "bom dia",
-        "boa tarde",
-        "boa noite",
-        "abraço",
-        "saudade",
-    ]
+    "problema", "suporte", "atualização", "erro", "senha", "dúvida",
+    "requisição", "pedido", "cadastro", "sistema", "login",
+    "travar", "bug", "acesso", "pagamento", "reembolso",
+    "cancelamento", "ajuda", "documento", "formulário", "falha",
+    "conta", "registro", "plataforma", "atendimento", "reclamação"
+]
 
+    improdutivas = [
+    "feliz", "parabéns", "obrigado", "agradeço", "bom dia",
+    "boa tarde", "boa noite", "abraço", "saudade",
+    "boa sorte", "agradecimento", "elogio", "comemorar",
+    "festas", "felicidades", "cumprimentos"
+]
     if any(p in texto for p in produtivas):
         categoria = "Produtivo"
         resposta = "Mensagem classificada como produtiva. Em breve daremos retorno sobre sua solicitação."

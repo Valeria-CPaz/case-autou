@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import produtivoImg from "./assets/produtivo.png";
 import improdutivoImg from "./assets/improdutivo.png";
 import logo_dark from './assets/logo_dark.png';
 import cloud from './assets/cloud.png';
-
 import "./App.css";
+
+
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 
 function App() {
   const [emailText, setEmailText] = useState("");
@@ -20,10 +23,11 @@ function App() {
     fallbacks: 0,
   });
 
+
   // Busca stats
   const fetchStats = async () => {
     try {
-      const resp = await fetch("http://localhost:8000/stats");
+      const resp = await fetch(`${API_KEY}/stats`);
       const stats = await resp.json();
       setAnalytics(stats);
     } catch (err) {
@@ -54,22 +58,24 @@ function App() {
     setEmailText(e.clipboardData.getData("text"));
   };
 
-  // Botão de classificação
+  // O handleClassify é o coração do app — envia o email/texto para o backend e atualiza os resultados
   const handleClassify = async () => {
     setLoading(true);
     setResult(null);
 
     try {
-      const response = await fetch("http://localhost:8000/process_email", {
+      const response = await fetch(`${API_KEY}/process_email`, {
         method: "POST",
         body: new URLSearchParams({ email_text: emailText }),
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
       });
       const data = await response.json();
+      
       setResult({
         label: data.categoria,
         suggestion: data.resposta_sugerida,
         fonte: data.fonte,
+        image: data.categoria === "Produtivo" ? produtivoImg : improdutivoImg,
       });
     } catch (err) {
       setResult({
@@ -78,7 +84,7 @@ function App() {
       });
     }
     setLoading(false);
-    fetchStats();
+    fetchStats(); // Atualiza o contador de analytics
   }
 
   // Copia sugestão de resposta para clipboard
@@ -90,7 +96,7 @@ function App() {
     }
   };
 
-  // Toggle do modo escuro/claro
+  // Toggle de light/dark mode
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light";
     setTheme(next);
@@ -102,17 +108,17 @@ function App() {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") handleClassify();
   };
 
+  // Busca stats
   useEffect(() => {
     fetchStats();
   }, []);
-
 
   return (
     <>
       <main>
         <div className="app-main">
 
-          {/* Botão de tema sempre no topo */}
+          {/* Light mode | Dark mode */}
           <button className="theme-toggle" onClick={toggleTheme}>
             {theme === "light" ? "🌚" : "🌞"}
           </button>
@@ -186,11 +192,13 @@ function App() {
                 <div className="loading-spinner" aria-label="Carregando..."></div>
               ) : (
                 <>
-                  <img
-                    src={result.image}
-                    alt={result.label}
-                    className="badge-result"
-                  />
+                  {result.image && (
+                    <img
+                      src={result.image}
+                      alt={result.label}
+                      className="badge-result"
+                    />
+                  )}
                   <div className="suggested-reply side">
                     {result.suggestion}
                     <button className="copy-btn" onClick={handleCopy}>

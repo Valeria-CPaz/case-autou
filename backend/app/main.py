@@ -1,24 +1,25 @@
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
-from backend.email_utils import (
+from .email_utils import (
     extract_text_from_file,
     preprocess_text,
 )
-from backend.classifier import classify_with_timeout
+from .classifier import classify_with_timeout
 
 
 app = FastAPI()
 
-# Permite requisiçõs de qualquer frontend durante o desenvolvimento
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Stats em memória
 stats = {
     "total": 0,
     "produtivos": 0,
@@ -41,7 +42,11 @@ def get_stats():
 async def process_email(
     email_file: UploadFile = File(None), email_text: str = Form(None)
 ):
-    # Endpoint que processa o texto (txt, pdf ou texto colado) e retorna o bruto pra etapa de classificação e NLP
+    """
+    Endpoint para processar tanto uploads de arquivos quanto texto colado,
+    facilitando uso pela interface web independente do formato
+    """
+
     if not email_file and not email_text:
         return {"error": "Envie um arquivo ou texto!"}
 
@@ -57,24 +62,30 @@ async def process_email(
         text_content = email_text
 
     # NLP
+    # Pré-processamento de texto para melhorar a acurácia da classificação IA/local
     preprocessed_text = preprocess_text(text_content)
 
-    # Classificação e sugestão de resposta
-    # IA (com fallback e timeout)
-    ia_result, fonte = classify_with_timeout(text_content, timeout=7)
+    """
+    Classificação e sugestão de resposta
+    IA (com fallback e timeout)
+    Usei um timeout para evitar travamento caso a IA externa demore,
+    caindo para o classificador local se necessário
+    """
+    ia_result, fonte = classify_with_timeout(text_content, timeout=10)
 
-    # Atualiza Stats
-    stats["total"] += 1
-    if ia_result["categoria"].lower() == "produtivo":
+    # Atualiza contadores para exibir analytics em tempo real na interface
+    categoria = str(ia_result.get("categoria", "")).lower()
+    if categoria == "produtivo":
         stats["produtivos"] += 1
-    elif ia_result["categoria"].lower() == "improdutivo":
+    elif categoria == "improdutivo":
         stats["improdutivos"] += 1
-
     if fonte != "gemini":
-        stats["fallbacks"] += 1   
+        stats["fallbacks"] += 1
 
     # Logs de resultados
-    print(f"[LOG] Categoria: {ia_result["categoria"]} | Fonte: {fonte} | Texto: {text_content[:60]}...")         
+    print(
+        f"[LOG] Categoria: {ia_result["categoria"]} | Fonte: {fonte} | Texto: {text_content[:60]}..."
+    )
 
     return {
         "status": "ok",

@@ -1,11 +1,15 @@
 import concurrent.futures
-from backend.email_utils import (
+from .email_utils import (
     classify_and_reply,
     classify_and_reply_gemini,
 )
 
 
-def classify_with_timeout(text, timeout=7):
+def classify_with_timeout(text, timeout=10):
+    """
+    Usei thread pool para chamar a IA externa (Gemini) com timeout
+    Se demorar demais ou der erro, retorna o resultado do classificador local
+    """    
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(classify_and_reply_gemini, text)
         try:

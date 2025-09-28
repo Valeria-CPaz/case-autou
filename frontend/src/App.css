@@ -288,10 +288,11 @@ textarea:focus-visible {
 }
 
 .suggested-reply.side {
-    background: #fff;
+    background: #FFFFFF;
     border-radius: 1.1rem;
     padding: 1.1rem 2.3rem 1.1rem 2.3rem;
     font-size: 1.07rem;
+    text-align: justify;
     color: #0B2E33;
     min-width: 260px;
     max-width: 420px;
